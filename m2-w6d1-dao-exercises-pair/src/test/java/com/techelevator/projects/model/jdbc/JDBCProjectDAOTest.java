@@ -3,6 +3,7 @@ package com.techelevator.projects.model.jdbc;
 import static org.junit.Assert.*;
 
 import java.sql.SQLException;
+import java.util.List;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -11,14 +12,14 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 
 import com.techelevator.projects.model.Department;
+import com.techelevator.projects.model.Project;
 
-public class DemartmentDAOTest {
+public class JDBCProjectDAOTest {
 	
 	private static SingleConnectionDataSource dataSource;
-	private JDBCDepartmentDAO dao;
+	private JDBCProjectDAO dao;
 	private JdbcTemplate jdbcTemplate;
 	
 	/* Before any tests are run, this method initializes the datasource for testing. runs one time in class*/ 
@@ -47,8 +48,11 @@ public class DemartmentDAOTest {
 		jdbcTemplate.update("DELETE FROM project_employee");
 		jdbcTemplate.update("DELETE FROM employee");
 		jdbcTemplate.update("DELETE FROM department");
-		
-		dao = new JDBCDepartmentDAO(dataSource);
+		jdbcTemplate.update("DELETE FROM project");
+		jdbcTemplate.execute("INSERT INTO project(name, from_date, to_date) VALUES ('Sin', '2011-11-11', '2012-12-12')");
+		jdbcTemplate.execute("INSERT INTO project(name, from_date, to_date) VALUES ('Shame', '2013-08-14', '2014-09-15')");
+
+		dao = new JDBCProjectDAO(dataSource);
 	}
 
 	/* After each test, we rollback any changes that were made to the database so that
@@ -58,38 +62,31 @@ public class DemartmentDAOTest {
 		dataSource.getConnection().rollback();
 	}	
 	
-
 	@Test
-	public void testGetAllDepartments() {
-		fail("Not yet implemented");
+	public void testGetAllActiveProjects() {
+		int numberOfActiveProjects = dao.getAllActiveProjects().size();
+
+		List<Project> projectList =dao.getAllActiveProjects();
+
+		assertNotNull(projectList);
+		assertEquals(projectList.size(), numberOfActiveProjects);
 	}
 
-	@Test
-	public void testSearchDepartmentsByName() {
-		fail("Not yet implemented");
-	}
 
 	@Test
-	public void testUpdateDepartmentName() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testCreateDepartment() {
-		String deptName = "MY NEW TEST DEPT";
-		Department newDept = dao.createDepartment("MY NEW TEST DEPT");
+	public void testRemoveEmployeeFromProject() {
+		dao.removeEmployeeFromProject(projectId, employeeId);
 		
-		assertNotNull(newDept);
-		SqlRowSet results = jdbcTemplate.queryForRowSet("SELECT * FROM department");
-		assertTrue("There were no departments in the database", results.next());
-		assertEquals(deptName, results.getString("name"));
-		assertEquals(newDept.getId(), (Long)results.getLong("department_id"));
-		assertFalse("Too many rows", results.next());
 	}
 
 	@Test
-	public void testGetDepartmentById() {
-		fail("Not yet implemented");
+	public void testAddEmployeeToProject() {
+		dao.addEmployeeToProject(1L, 1L);
+		
+		List<Project> projectList =dao.getAllActiveProjects();
+
+		assertNotNull(projectList); dao.
+		assertEauals(1L, )
 	}
 
 }
