@@ -30,7 +30,8 @@ public class JDBCProjectDAO implements ProjectDAO {
 
 	@Override
 	public void addEmployeeToProject(Long projectId, Long employeeId) {
-		
+		String addEmployeeToProject = "UPDATE project_employee Set project_id = ? WHERE employee_id = ?";
+		jdbcTemplate.update(addEmployeeToProject, projectId, employeeId);
 	}
 
 }
