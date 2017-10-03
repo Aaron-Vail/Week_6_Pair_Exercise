@@ -26,8 +26,8 @@ public class JDBCEmployeeDAO implements EmployeeDAO {
 	@Override
 	public List<Employee> getAllEmployees() {
 		ArrayList<Employee> employees = new ArrayList<>();
-		String sqlFindAllEmployees = "SELECT * "+"FROM employee";
-		SqlRowSet results = jdbcTemplate.queryForRowSet(sqlFindAllEmployees, "name");
+		String sqlFindAllEmployees = "SELECT * FROM employee";
+		SqlRowSet results = jdbcTemplate.queryForRowSet(sqlFindAllEmployees);
 		while(results.next()) {
 			Employee theEmployee = mapRowToEmployee(results);
 			employees.add(theEmployee);
@@ -37,7 +37,7 @@ public class JDBCEmployeeDAO implements EmployeeDAO {
 	@Override
 	public List<Employee> searchEmployeesByName(String firstNameSearch, String lastNameSearch) {
 		ArrayList<Employee> employees = new ArrayList<>();
-		String sqlFindEmployeesByName = "SELECT name FROM department WHERE first_name =? AND last_name =?";
+		String sqlFindEmployeesByName = "SELECT * FROM employee WHERE first_name ILIKE ? AND last_name ILIKE ?";
 		SqlRowSet results = jdbcTemplate.queryForRowSet(sqlFindEmployeesByName, firstNameSearch, lastNameSearch);
 		while(results.next()) {
 			Employee theEmployee = mapRowToEmployee(results);
@@ -56,20 +56,20 @@ public class JDBCEmployeeDAO implements EmployeeDAO {
 	}
 
 	@Override
-	public List<Employee> getEmployeesWithoutProjects() {
+	public List<Employee> getEmployeesWithoutProjects() {				
 		List<Employee> listOfEmployeeIds = new ArrayList<>();
-		String sqlSelectEmployeeIdsWithoutProjects = "SELECT * FROM employee WHERE project_id IS NULL";
+		String sqlSelectEmployeeIdsWithoutProjects = "SELECT * FROM employee e LEFT JOIN project_employee pe ON e.employee_id = pe.employee_id WHERE project_id IS NULL";
 		SqlRowSet results = jdbcTemplate.queryForRowSet(sqlSelectEmployeeIdsWithoutProjects);
 		while(results.next()) {
 			listOfEmployeeIds.add(mapRowToEmployee(results));
 		} return listOfEmployeeIds;	
 	}
 
-	@Override
+	@Override																	
 	public List<Employee> getEmployeesByProjectId(Long projectId) {
 		List<Employee> listOfEmployeeIds = new ArrayList<>();
-		String sqlSelectEmployeeIdsWithProjects = "SELECT * FROM employee WHERE project_id IS NOT NULL";
-		SqlRowSet results = jdbcTemplate.queryForRowSet(sqlSelectEmployeeIdsWithProjects);
+		String sqlSelectEmployeeIdsWithProjects = "SELECT * FROM project_employee pe JOIN employee e ON pe.employee_id = e.employee_id WHERE project_id =? AND project_id IS NOT NULL";
+		SqlRowSet results = jdbcTemplate.queryForRowSet(sqlSelectEmployeeIdsWithProjects, projectId);
 		while(results.next()) {
 			listOfEmployeeIds.add(mapRowToEmployee(results));
 		} return listOfEmployeeIds;	
@@ -77,14 +77,14 @@ public class JDBCEmployeeDAO implements EmployeeDAO {
 
 	@Override
 	public void changeEmployeeDepartment(Long employeeId, Long departmentId) {
-		String changeEmployeesDepartment = "UPDATE employee SET deparment_id = ? WHERE employee_id = ?";
-		jdbcTemplate.update(changeEmployeesDepartment, departmentId, employeeId);
+		String sqlChangeEmployeesDepartment = "UPDATE employee SET deparment_id = ? WHERE employee_id = ?";
+		jdbcTemplate.update(sqlChangeEmployeesDepartment, departmentId, employeeId);
 	}
 	
 	private Employee mapRowToEmployee(SqlRowSet results) {
 		Employee theEmployee;
 		theEmployee = new Employee();
-		theEmployee.setId(results.getLong("id"));
+		theEmployee.setId(results.getLong("employee_id"));
 		theEmployee.setFirstName(results.getString("first_name"));
 		theEmployee.setLastName(results.getString("last_name"));		
 		theEmployee.setGender(results.getString("gender").charAt(0));

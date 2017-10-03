@@ -22,7 +22,7 @@ public class JDBCDepartmentDAO implements DepartmentDAO {
 	@Override
 	public List<Department> getAllDepartments() {
 		ArrayList<Department> departments = new ArrayList<>();
-		String sqlFindAllDepartments = "SELECT department_id, name "+"FROM department";
+		String sqlFindAllDepartments = "SELECT department_id, name FROM department";
 		SqlRowSet results = jdbcTemplate.queryForRowSet(sqlFindAllDepartments);
 		while(results.next()) {
 			Department theDepartment = mapRowToDepartment(results);
@@ -33,7 +33,7 @@ public class JDBCDepartmentDAO implements DepartmentDAO {
 	@Override
 	public List<Department> searchDepartmentsByName(String nameSearch) {
 		ArrayList<Department> departments = new ArrayList<>();
-		String sqlFindDepartmentsByName = "SELECT department_id, name "+"FROM department "+"WHERE name ILIKE ?";
+		String sqlFindDepartmentsByName = "SELECT department_id, name FROM department WHERE name ILIKE ?";
 		SqlRowSet results = jdbcTemplate.queryForRowSet(sqlFindDepartmentsByName, "%" + nameSearch + "%");
 		while(results.next()) {
 			Department theDepartment = mapRowToDepartment(results);
@@ -43,9 +43,9 @@ public class JDBCDepartmentDAO implements DepartmentDAO {
 	
 
 	@Override
-	public void updateDepartmentName(Long departmentId, String departmentName) {
-		String updateDepartmentName = "UPDATE department "+"SET name =? "+"WHERE department_id =?";
-		jdbcTemplate.update(updateDepartmentName, departmentId, departmentName);
+	public void updateDepartmentName(Long departmentId, String newDepartmentName) {
+		String updateDepartmentName = "UPDATE department SET name =? WHERE department_id =?";
+		jdbcTemplate.update(updateDepartmentName, newDepartmentName, departmentId);
 	}
 
 	@Override
@@ -69,7 +69,7 @@ public class JDBCDepartmentDAO implements DepartmentDAO {
 	private Department mapRowToDepartment(SqlRowSet results) {
 		Department theDepartment;
 		theDepartment = new Department();
-		theDepartment.setId(results.getLong("id"));
+		theDepartment.setId(results.getLong("department_id"));
 		theDepartment.setName(results.getString("name"));
 		
 		return theDepartment;
