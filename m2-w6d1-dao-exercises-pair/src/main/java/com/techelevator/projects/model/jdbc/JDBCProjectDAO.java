@@ -60,26 +60,29 @@ public class JDBCProjectDAO implements ProjectDAO {
 		return theProject;
 	}
 	
-	public Employee createEmployee(String firstName, String lastName, LocalDate birthDate, String gender, LocalDate hireDate, long departmentId) {
-		String sqlCreateEmployee = "INSERT INTO employee (first_name, last_name, birth_date, gender, hire_date, department_id) VALUES (?, ?, ?, ?, ?, ?)";
-		jdbcTemplate.update(sqlCreateEmployee, firstName, lastName, birthDate, gender, hireDate, departmentId);
+	public Project createProject(String name, LocalDate fromDate, LocalDate toDate) {
+		Project project = new Project();
+		project.setName(name);
+		project.setStartDate(fromDate);
+		project.setEndDate(toDate);
+		String sqlCreateProject = "INSERT INTO project(name, from_date, to_date)"
+															+ "VALUES (?, ?, ?) RETURNING project_id";
+		project.setId(jdbcTemplate.queryForObject(sqlCreateProject, Long.class, name, fromDate, toDate));
+		return project;
 		
-		String sqlPullCreatedEmployee = "SELECT * FROM employee WHERE first_name = ?";
-		SqlRowSet results = jdbcTemplate.queryForRowSet(sqlPullCreatedEmployee, firstName);
-		List<Employee> listOfEmployees = new ArrayList<>();
-		Employee theEmployee = null;
-		
-		while(results.next()) {	
-			theEmployee = new Employee();
-			theEmployee.setId(results.getLong("employee_id"));
-			theEmployee.setFirstName(results.getString("first_name"));
-			theEmployee.setLastName(results.getString("last_name"));		
-			theEmployee.setGender(results.getString("gender").charAt(0));
-			theEmployee.setHireDate(results.getDate("hire_date").toLocalDate());
-			theEmployee.setDepartmentId(results.getLong("department_id"));
-			theEmployee.setBirthDay(results.getDate("birth_date").toLocalDate());
-			listOfEmployees.add(theEmployee);
-		} return theEmployee;
+	}
+	
+	public Employee createEmployee(Long employeeId, String firstName, String lastName, LocalDate birthDate, char gender, LocalDate hireDate) {
+		Employee employee = new Employee();
+		employee.setFirstName(firstName);
+		employee.setLastName(lastName);
+		employee.setBirthDay(birthDate);
+		employee.setGender(gender);
+		employee.setHireDate(hireDate);
+		String sqlCreateEmployee = "INSERT INTO employee(first_name, last_name, birth_date, gender, hire_date)"
+															+ "VALUES (?, ?, ?, ?, ?) RETURNING employee_id";
+		employee.setId(jdbcTemplate.queryForObject(sqlCreateEmployee,  Long.class, firstName, lastName, birthDate, gender, hireDate));
+		return employee;
 		
 	}
 

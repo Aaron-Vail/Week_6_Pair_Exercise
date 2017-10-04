@@ -25,6 +25,7 @@ public class JDBCProjectDAOTest {
 	private static SingleConnectionDataSource dataSource;
 	private JDBCProjectDAO dao;
 	private JdbcTemplate jdbcTemplate;
+	private JDBCEmployeeDAO employeeDAO;
 	private long eid;
 	private long pid1;
 	private long pid2;
@@ -61,8 +62,6 @@ public class JDBCProjectDAOTest {
 		pid2 = jdbcTemplate.queryForObject("INSERT INTO project (name, from_date, to_date) VALUES ('Shame', '2013-08-14', '2014-09-15') RETURNING project_id", long.class);
 		eid = jdbcTemplate.queryForObject("INSERT INTO employee (first_name, last_name, birth_date, gender, hire_date) VALUES ('Jarred', 'Kulich', '2000-01-01', 'F', '1969-4-20') RETURNING employee_id", long.class);
 		
-		
-		
 		dao = new JDBCProjectDAO(dataSource);
 	}
 
@@ -86,25 +85,38 @@ public class JDBCProjectDAOTest {
 
 	@Test
 	public void testRemoveEmployeeFromProject() {
+		
+		Employee aaRon = dao.createEmployee(1L, "AA Ron", "Vail", LocalDate.parse("1981-01-03"), 'M', LocalDate.parse("2017-10-04"));
+		Project testProject = dao.createProject("project 1", LocalDate.parse("2017-08-28"), LocalDate.parse("2017-12-01"));
+		dao.addEmployeeToProject(testProject.getId(), aaRon.getId());
+		
+		assertNotNull(aaRon.getId());
+		assertNotNull(testProject.getId());
+		
+		dao.removeEmployeeFromProject(testProject.getId(),  aaRon.getId());
+		List<Employee> results = employeeDAO.getEmployeesByProjectId(testProject.getId());
+		
+		assertEquals(true, results.isEmpty());
+
+		
 		jdbcTemplate.update("INSERT INTO department (department_id, name) VALUES (1, 'test department')");
 		List<Employee> empList = new ArrayList<>();
-		empList.add(dao.createEmployee("Jared", "Awesome", LocalDate.parse("1992-10-03"), "F", LocalDate.parse("2017-10-03"), 1));
-		empList.add(dao.createEmployee("AA Ron", "Bro", LocalDate.parse("1982-10-03"), "M", LocalDate.parse("2015-10-03"), 1));
+		empList.add(dao.createEmployee((long)1, "Jared", "Awesome", LocalDate.parse("1992-10-03"), 'F', LocalDate.parse("2017-10-03")));
+		empList.add(dao.createEmployee((long)1, "AA Ron", "Bro", LocalDate.parse("1982-10-03"), 'M', LocalDate.parse("2015-10-03")));
 		
 		long tempEmployee = empList.get(0).getId();
 		dao.removeEmployeeFromProject(pid1, tempEmployee);
 		List<Project> projectList =dao.getAllActiveProjects();
 		
 		assertEquals(1,1);
-		
 	}
 
 	@Test
 	public void testAddEmployeeToProject() {
 		jdbcTemplate.update("INSERT INTO department (department_id, name) VALUES (1, 'test department')");
 		List<Employee> empList = new ArrayList<>();
-		empList.add(dao.createEmployee("Jared", "Awesome", LocalDate.parse("1992-10-03"), "F", LocalDate.parse("2017-10-03"), 1));
-		empList.add(dao.createEmployee("AA Ron", "Bro", LocalDate.parse("1982-10-03"), "M", LocalDate.parse("2015-10-03"), 1));
+		empList.add(dao.createEmployee((long)1, "Jared", "Awesome", LocalDate.parse("1992-10-03"), 'F', LocalDate.parse("2017-10-03")));
+		empList.add(dao.createEmployee((long)1, "AA Ron", "Bro", LocalDate.parse("1982-10-03"), 'M', LocalDate.parse("2015-10-03")));
 				
 		long tempEmployee = empList.get(0).getId();		
 		dao.addEmployeeToProject(pid1, tempEmployee);

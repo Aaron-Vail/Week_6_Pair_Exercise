@@ -65,7 +65,7 @@ public class JDBCEmployeeDAOTest {
 	@Test
 	public void testGetAllEmployees() {
 		List<Employee> empList = new ArrayList<>();
-		empList.add(dao.createEmployee("Jared", "Awesome", LocalDate.parse("1992-10-03"), "F", LocalDate.parse("2017-10-03"), 1));
+		empList.add(dao.createEmployee((long)1, "Jared", "Awesome", LocalDate.parse("1992-10-03"), 'F', LocalDate.parse("2017-10-03")));
 		
 		int numberOfExistingEmployees = dao.getAllEmployees().size();
 		
@@ -78,7 +78,7 @@ public class JDBCEmployeeDAOTest {
 	@Test
 	public void testSearchEmployeesByName() {
 		List<Employee> empList = new ArrayList<>();
-		empList.add(dao.createEmployee("Jared", "Awesome", LocalDate.parse("1992-10-03"), "F", LocalDate.parse("2017-10-03"), 1));
+		empList.add(dao.createEmployee((long)1, "Jared", "Awesome", LocalDate.parse("1992-10-03"), 'F', LocalDate.parse("2017-10-03")));
 		
 		assertEquals("Jared", empList.get(0).getFirstName());
 		assertEquals("Awesome", empList.get(0).getLastName());
@@ -87,8 +87,8 @@ public class JDBCEmployeeDAOTest {
 	@Test
 	public void testGetEmployeesByDepartmentId() {
 		List<Employee> empList = new ArrayList<>();
-		empList.add(dao.createEmployee("Jared", "Awesome", LocalDate.parse("1992-10-03"), "F", LocalDate.parse("2017-10-03"), 1));
-		empList.add(dao.createEmployee("AA Ron", "Bro", LocalDate.parse("1982-10-03"), "M", LocalDate.parse("2015-10-03"), 1));
+		empList.add(dao.createEmployee((long)1, "Jared", "Awesome", LocalDate.parse("1992-10-03"), 'F', LocalDate.parse("2017-10-03")));
+		empList.add(dao.createEmployee((long)1, "AA Ron", "Bro", LocalDate.parse("1982-10-03"), 'M', LocalDate.parse("2015-10-03")));
 				
 		assertEquals(1, empList.get(0).getDepartmentId());
 		assertEquals("Jared", empList.get(0).getFirstName());
@@ -100,14 +100,12 @@ public class JDBCEmployeeDAOTest {
 		List<Employee> empListWithOutProject = new ArrayList<>();
 		List<Employee> empList = new ArrayList<>();
 		
-		empListWithOutProject.add(dao.createEmployee("Jared", "Awesome", LocalDate.parse("1992-10-03"), "F", LocalDate.parse("2017-10-03"), 1));
-		empList.add(dao.createEmployee("AA Ron", "Bro", LocalDate.parse("1982-10-03"), "M", LocalDate.parse("2015-10-03"), 1));
+		empListWithOutProject.add(dao.createEmployee((long)1, "Jared", "Awesome", LocalDate.parse("1992-10-03"), 'F', LocalDate.parse("2017-10-03")));
+		empList.add(dao.createEmployee((long)1, "AA Ron", "Bro", LocalDate.parse("1982-10-03"), 'M', LocalDate.parse("2015-10-03")));
 		
-	
 		Long number = empList.get(0).getId();
 		jdbcTemplate.update("INSERT INTO project_employee (project_id, employee_id) VALUES (1, ?)", number);
-		
-		
+			
 		assertEquals(1, dao.getEmployeesWithoutProjects().size());
 		
 		
@@ -118,8 +116,8 @@ public class JDBCEmployeeDAOTest {
 		List<Employee> empListWithOutProject = new ArrayList<>();
 		List<Employee> empList = new ArrayList<>();
 		
-		empListWithOutProject.add(dao.createEmployee("Jared", "Awesome", LocalDate.parse("1992-10-03"), "F", LocalDate.parse("2017-10-03"), 1));
-		empList.add(dao.createEmployee("AA Ron", "Bro", LocalDate.parse("1982-10-03"), "M", LocalDate.parse("2015-10-03"), 1));
+		empListWithOutProject.add(dao.createEmployee((long)1, "Jared", "Awesome", LocalDate.parse("1992-10-03"), 'F', LocalDate.parse("2017-10-03")));
+		empList.add(dao.createEmployee((long)1, "AA Ron", "Bro", LocalDate.parse("1982-10-03"), 'M', LocalDate.parse("2015-10-03")));
 		
 		Long aaronsEID = empList.get(0).getId();
 		jdbcTemplate.update("INSERT INTO project_employee (project_id, employee_id) VALUES (1, ?)", aaronsEID);
@@ -131,10 +129,9 @@ public class JDBCEmployeeDAOTest {
 	@Test
 	public void testChangeEmployeeDepartment() {
 		List<Employee> empList = new ArrayList<>();		
-		empList.add(dao.createEmployee("AA Ron", "Bro", LocalDate.parse("1982-10-03"), "M", LocalDate.parse("2015-10-03"), 1));
+		empList.add(dao.createEmployee((long)1, "AA Ron", "Bro", LocalDate.parse("1982-10-03"), 'M', LocalDate.parse("2015-10-03")));
 		Long aaronsEID = empList.get(0).getId();
 		Long deptNumber = (long)2;
-		
 		
 		dao.changeEmployeeDepartment(aaronsEID, deptNumber);
 		

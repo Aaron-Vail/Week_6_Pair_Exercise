@@ -89,25 +89,23 @@ public class JDBCDepartmentDAOTest {
 
 	@Test
 	public void testUpdateDepartmentName() {
+		String deptName = "Little Support";
+		Department testDepartment = dao.createDepartment(deptName);
+		String updatedName = "No Support";
+		dao.updateDepartmentName(testDepartment.getId(), updatedName);
+		testDepartment = dao.getDepartmentById(testDepartment.getId());
+		assertNotNull(testDepartment);
+		assertEquals(updatedName, testDepartment.getName());
 		
-		dao.updateDepartmentName((long)1, "new department name");
-		
-		assertEquals("new department name", dao.getDepartmentById((long)1).getName());
 	}
 
 	@Test
 	public void testCreateDepartment() {
-		Department td = dao.createDepartment("Whatever");
-		
-		assertEquals("Whatever", td.getName());
-		
-		
-//		String deptName = "MY NEW TEST DEPT";
-//		Department newDept = dao.createDepartment(deptName);
-//		
-//		assertNotNull(newDept);
-//		SqlRowSet results = jdbcTemplate.queryForRowSet("SELECT * FROM department");
-//		assertTrue("There were no departments in the database", results.next());
+		String deptName = "MY NEW TEST DEPT";
+		Department newDept = dao.createDepartment(deptName);
+		assertNotNull(newDept);
+		SqlRowSet results = jdbcTemplate.queryForRowSet("SELECT * FROM department");
+		assertTrue("There were no departments in the database", results.next());
 //		assertEquals(deptName, results.getString("name"));
 //		assertEquals(newDept.getId(), (Long)results.getLong("department_id"));
 //		assertFalse("Too many rows", results.next());
