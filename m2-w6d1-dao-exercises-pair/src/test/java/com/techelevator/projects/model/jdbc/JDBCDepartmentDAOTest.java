@@ -49,7 +49,8 @@ public class JDBCDepartmentDAOTest {
 		jdbcTemplate.update("DELETE FROM project_employee");
 		jdbcTemplate.update("DELETE FROM employee");
 		jdbcTemplate.update("DELETE FROM department");
-		
+		jdbcTemplate.update("INSERT INTO department (department_id, name) VALUES (1, 'test department')");
+		jdbcTemplate.update("INSERT INTO department (department_id, name) VALUES (2, 'test department 2')");
 		dao = new JDBCDepartmentDAO(dataSource);
 	}
 
@@ -88,35 +89,37 @@ public class JDBCDepartmentDAOTest {
 
 	@Test
 	public void testUpdateDepartmentName() {
-		fail("Not yet implemented");
+		
+		dao.updateDepartmentName((long)1, "new department name");
+		
+		assertEquals("new department name", dao.getDepartmentById((long)1).getName());
 	}
 
 	@Test
 	public void testCreateDepartment() {
-		String deptName = "MY NEW TEST DEPT";
-		Department newDept = dao.createDepartment(deptName);
+		Department td = dao.createDepartment("Whatever");
 		
-		assertNotNull(newDept);
-		SqlRowSet results = jdbcTemplate.queryForRowSet("SELECT * FROM department");
-		assertTrue("There were no departments in the database", results.next());
-		assertEquals(deptName, results.getString("name"));
-		assertEquals(newDept.getId(), (Long)results.getLong("department_id"));
-		assertFalse("Too many rows", results.next());
+		assertEquals("Whatever", td.getName());
+		
+		
+//		String deptName = "MY NEW TEST DEPT";
+//		Department newDept = dao.createDepartment(deptName);
+//		
+//		assertNotNull(newDept);
+//		SqlRowSet results = jdbcTemplate.queryForRowSet("SELECT * FROM department");
+//		assertTrue("There were no departments in the database", results.next());
+//		assertEquals(deptName, results.getString("name"));
+//		assertEquals(newDept.getId(), (Long)results.getLong("department_id"));
+//		assertFalse("Too many rows", results.next());
 	}
 
 	@Test
 	public void testGetDepartmentById() {
-		String deptName = "MY NEW TEST DEPT";
-		Department newDept = dao.createDepartment(deptName);
-		List<Department> departments = new ArrayList<>();
-		//Long one = (long) 1;
-		departments.add(dao.getDepartmentById(1L));
+		Department td = dao.getDepartmentById( (long) 1);
+		Department td2 = dao.getDepartmentById( (long) 2);
 		
-		
-		assertNotNull(departments);
-		assertEquals(newDept, departments.get(0));
-//		Department savedDepartment = results.get(0);
-//		assertDepartmentsAreEqual(theDepartment, savedDepartment);
+		assertEquals( "test department" , td.getName() );
+		assertEquals( "test department 2", td2.getName() );
 	}
 
 }

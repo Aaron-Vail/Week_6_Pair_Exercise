@@ -1,5 +1,6 @@
 package com.techelevator.projects.model.jdbc;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -77,9 +78,35 @@ public class JDBCEmployeeDAO implements EmployeeDAO {
 
 	@Override
 	public void changeEmployeeDepartment(Long employeeId, Long departmentId) {
-		String sqlChangeEmployeesDepartment = "UPDATE employee SET deparment_id = ? WHERE employee_id = ?";
+		String sqlChangeEmployeesDepartment = "UPDATE employee SET department_id = ? WHERE employee_id = ?";
 		jdbcTemplate.update(sqlChangeEmployeesDepartment, departmentId, employeeId);
 	}
+	
+	
+	public Employee createEmployee(String firstName, String lastName, LocalDate birthDate, String gender, LocalDate hireDate, long departmentId) {
+		String sqlCreateEmployee = "INSERT INTO employee (first_name, last_name, birth_date, gender, hire_date, department_id) VALUES (?, ?, ?, ?, ?, ?)";
+		jdbcTemplate.update(sqlCreateEmployee, firstName, lastName, birthDate, gender, hireDate, departmentId);
+		
+		String sqlPullCreatedEmployee = "SELECT * FROM employee WHERE first_name = ?";
+		SqlRowSet results = jdbcTemplate.queryForRowSet(sqlPullCreatedEmployee, firstName);
+		List<Employee> listOfEmployees = new ArrayList<>();
+		Employee theEmployee = null;
+		
+		while(results.next()) {	
+			theEmployee = new Employee();
+			theEmployee.setId(results.getLong("employee_id"));
+			theEmployee.setFirstName(results.getString("first_name"));
+			theEmployee.setLastName(results.getString("last_name"));		
+			theEmployee.setGender(results.getString("gender").charAt(0));
+			theEmployee.setHireDate(results.getDate("hire_date").toLocalDate());
+			theEmployee.setDepartmentId(results.getLong("department_id"));
+			theEmployee.setBirthDay(results.getDate("birth_date").toLocalDate());
+			listOfEmployees.add(theEmployee);
+		} return theEmployee;
+		
+	}
+
+
 	
 	private Employee mapRowToEmployee(SqlRowSet results) {
 		Employee theEmployee;

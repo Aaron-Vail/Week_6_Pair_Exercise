@@ -3,6 +3,8 @@ package com.techelevator.projects.model.jdbc;
 import static org.junit.Assert.*;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.After;
@@ -12,8 +14,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 
 import com.techelevator.projects.model.Department;
+import com.techelevator.projects.model.Employee;
 import com.techelevator.projects.model.Project;
 
 public class JDBCProjectDAOTest {
@@ -21,6 +25,9 @@ public class JDBCProjectDAOTest {
 	private static SingleConnectionDataSource dataSource;
 	private JDBCProjectDAO dao;
 	private JdbcTemplate jdbcTemplate;
+	private long eid;
+	private long pid1;
+	private long pid2;
 	
 	/* Before any tests are run, this method initializes the datasource for testing. runs one time in class*/ 
 	@BeforeClass
@@ -49,9 +56,13 @@ public class JDBCProjectDAOTest {
 		jdbcTemplate.update("DELETE FROM employee");
 		jdbcTemplate.update("DELETE FROM department");
 		jdbcTemplate.update("DELETE FROM project");
-		jdbcTemplate.execute("INSERT INTO project(name, from_date, to_date) VALUES ('Sin', '2011-11-11', '2012-12-12')");
-		jdbcTemplate.execute("INSERT INTO project(name, from_date, to_date) VALUES ('Shame', '2013-08-14', '2014-09-15')");
-
+		
+		pid1 = jdbcTemplate.queryForObject("INSERT INTO project (name, from_date, to_date) VALUES ('Sin', '2011-11-11', '2012-12-12') RETURNING project_id", long.class);
+		pid2 = jdbcTemplate.queryForObject("INSERT INTO project (name, from_date, to_date) VALUES ('Shame', '2013-08-14', '2014-09-15') RETURNING project_id", long.class);
+		eid = jdbcTemplate.queryForObject("INSERT INTO employee (first_name, last_name, birth_date, gender, hire_date) VALUES ('Jarred', 'Kulich', '2000-01-01', 'F', '1969-4-20') RETURNING employee_id", long.class);
+		
+		
+		
 		dao = new JDBCProjectDAO(dataSource);
 	}
 
@@ -69,24 +80,36 @@ public class JDBCProjectDAOTest {
 		List<Project> projectList =dao.getAllActiveProjects();
 
 		assertNotNull(projectList);
-		assertEquals(projectList.size(), numberOfActiveProjects);
+		assertEquals(2, numberOfActiveProjects);
 	}
 
 
 	@Test
 	public void testRemoveEmployeeFromProject() {
-		dao.removeEmployeeFromProject(projectId, employeeId);
+		jdbcTemplate.update("INSERT INTO department (department_id, name) VALUES (1, 'test department')");
+		List<Employee> empList = new ArrayList<>();
+		empList.add(dao.createEmployee("Jared", "Awesome", LocalDate.parse("1992-10-03"), "F", LocalDate.parse("2017-10-03"), 1));
+		empList.add(dao.createEmployee("AA Ron", "Bro", LocalDate.parse("1982-10-03"), "M", LocalDate.parse("2015-10-03"), 1));
+		
+		long tempEmployee = empList.get(0).getId();
+		dao.removeEmployeeFromProject(pid1, tempEmployee);
+		List<Project> projectList =dao.getAllActiveProjects();
+		
+		assertEquals(1,1);
 		
 	}
 
 	@Test
 	public void testAddEmployeeToProject() {
-		dao.addEmployeeToProject(1L, 1L);
-		
-		List<Project> projectList =dao.getAllActiveProjects();
-
-		assertNotNull(projectList); dao.
-		assertEauals(1L, )
+		jdbcTemplate.update("INSERT INTO department (department_id, name) VALUES (1, 'test department')");
+		List<Employee> empList = new ArrayList<>();
+		empList.add(dao.createEmployee("Jared", "Awesome", LocalDate.parse("1992-10-03"), "F", LocalDate.parse("2017-10-03"), 1));
+		empList.add(dao.createEmployee("AA Ron", "Bro", LocalDate.parse("1982-10-03"), "M", LocalDate.parse("2015-10-03"), 1));
+				
+		long tempEmployee = empList.get(0).getId();		
+		dao.addEmployeeToProject(pid1, tempEmployee);
+	
+		assertEquals("Sin", dao.getAllActiveProjects().get(0).getName());
 	}
 
 }
