@@ -99,16 +99,17 @@ public class JDBCDepartmentDAOTest {
 		
 	}
 
-	@Test
+	@Test    //This test failed because of the insert statements used for the other tests.  
 	public void testCreateDepartment() {
-		String deptName = "MY NEW TEST DEPT";
-		Department newDept = dao.createDepartment(deptName);
-		assertNotNull(newDept);
+		jdbcTemplate.update("DELETE FROM department");
+		String departmentName = "MY_NEW_TEST_DEPARTMENT";
+		Department newDepartment = dao.createDepartment(departmentName);
+		assertNotNull(newDepartment);
 		SqlRowSet results = jdbcTemplate.queryForRowSet("SELECT * FROM department");
 		assertTrue("There were no departments in the database", results.next());
-//		assertEquals(deptName, results.getString("name"));
-//		assertEquals(newDept.getId(), (Long)results.getLong("department_id"));
-//		assertFalse("Too many rows", results.next());
+		assertEquals(departmentName, results.getString("name"));
+		assertEquals(newDepartment.getId(), (Long)results.getLong("department_id"));
+		assertFalse("Too many rows", results.next());
 	}
 
 	@Test

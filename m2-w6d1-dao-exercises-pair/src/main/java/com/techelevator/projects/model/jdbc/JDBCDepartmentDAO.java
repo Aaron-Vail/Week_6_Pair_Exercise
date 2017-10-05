@@ -50,9 +50,11 @@ public class JDBCDepartmentDAO implements DepartmentDAO {
 
 	@Override
 	public Department createDepartment(String departmentName) {
+		Department newDept = new Department();
+		newDept.setName(departmentName);
 		String sqlCreateDepartment = "INSERT INTO department (name) VALUES (?) RETURNING department_id";
-		Long newDepartmentId = jdbcTemplate.queryForObject(sqlCreateDepartment, Long.class, departmentName);
-		return getDepartmentById(newDepartmentId);
+		newDept.setId(jdbcTemplate.queryForObject(sqlCreateDepartment, Long.class, departmentName));
+		return newDept;
 	}
 			
 
